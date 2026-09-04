@@ -1,0 +1,135 @@
+{
+  "features": [
+    "transaction_amount",
+    "user_history_returns",
+    "item_category_risk",
+    "delivery_distance_km",
+    "is_cod"
+  ],
+  "optimal_threshold": 0.22,
+  "max_profit": 149000.0,
+  "roc_auc": 0.835,
+  "precision": 0.484,
+  "recall": 0.867,
+  "feature_importances": {
+    "transaction_amount": 0.0586,
+    "user_history_returns": 0.4961,
+    "item_category_risk": 0.1692,
+    "delivery_distance_km": 0.0731,
+    "is_cod": 0.2029
+  },
+  "baseline_means": {
+    "transaction_amount": 7704.0639,
+    "user_history_returns": 1.4826,
+    "item_category_risk": 0.508,
+    "delivery_distance_km": 253.6703,
+    "is_cod": 0.5858
+  },
+  "training_samples": 5000,
+  "savings_per_tp": 800,
+  "cost_per_fp": 200,
+  "threshold_curve": [
+    {
+      "threshold": 0.1,
+      "profit": 130000,
+      "tp": 287,
+      "fp": 498
+    },
+    {
+      "threshold": 0.15,
+      "profit": 140000,
+      "tp": 277,
+      "fp": 408
+    },
+    {
+      "threshold": 0.2,
+      "profit": 147600,
+      "tp": 260,
+      "fp": 302
+    },
+    {
+      "threshold": 0.25,
+      "profit": 144000,
+      "tp": 235,
+      "fp": 220
+    },
+    {
+      "threshold": 0.3,
+      "profit": 137200,
+      "tp": 210,
+      "fp": 154
+    },
+    {
+      "threshold": 0.35,
+      "profit": 128400,
+      "tp": 191,
+      "fp": 122
+    },
+    {
+      "threshold": 0.4,
+      "profit": 123600,
+      "tp": 180,
+      "fp": 102
+    },
+    {
+      "threshold": 0.45,
+      "profit": 113200,
+      "tp": 159,
+      "fp": 70
+    },
+    {
+      "threshold": 0.5,
+      "profit": 104200,
+      "tp": 145,
+      "fp": 59
+    },
+    {
+      "threshold": 0.55,
+      "profit": 99000,
+      "tp": 136,
+      "fp": 49
+    },
+    {
+      "threshold": 0.6,
+      "profit": 87800,
+      "tp": 120,
+      "fp": 41
+    },
+    {
+      "threshold": 0.65,
+      "profit": 71800,
+      "tp": 96,
+      "fp": 25
+    },
+    {
+      "threshold": 0.7,
+      "profit": 44800,
+      "tp": 59,
+      "fp": 12
+    },
+    {
+      "threshold": 0.75,
+      "profit": 29600,
+      "tp": 38,
+      "fp": 4
+    },
+    {
+      "threshold": 0.8,
+      "profit": 16800,
+      "tp": 21,
+      "fp": 0
+    },
+    {
+      "threshold": 0.85,
+      "profit": 3200,
+      "tp": 4,
+      "fp": 0
+    },
+    {
+      "threshold": 0.9,
+      "profit": 0,
+      "tp": 0,
+      "fp": 0
+    }
+  ]
+}

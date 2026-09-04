@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Razorpay Risk Shield AI | E-Commerce Return & Fraud Intelligence</title>
+  <meta name="description" content="AI-driven Return Risk & COD Fraud prevention platform for e-commerce merchants inspired by Razorpay Thirdwatch." />
+  <!-- Google Fonts: Inter & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+  <div class="app-layout">
+    <!-- Navigation Bar -->
+    <header class="navbar">
+      <div class="nav-brand">
+        <div class="brand-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            <path d="m9 12 2 2 4-4"/>
+          </svg>
+        </div>
+        <div class="brand-titles">
+          <div class="brand-name">Razorpay <span class="accent-text">Risk Shield AI</span></div>
+          <div class="brand-tagline">AI-Powered COD Return & Fraud Intelligence Platform</div>
+        </div>
+      </div>
+
+      <nav class="nav-tabs" role="tablist">
+        <button id="tab-btn-simulator" class="tab-btn active" onclick="switchTab('simulator')">
+          <span class="tab-icon">🎯</span> Live Simulator
+        </button>
+        <button id="tab-btn-batch" class="tab-btn" onclick="switchTab('batch')">
+          <span class="tab-icon">⚡</span> Batch Scanner
+        </button>
+        <button id="tab-btn-analytics" class="tab-btn" onclick="switchTab('analytics')">
+          <span class="tab-icon">📈</span> ROI Analytics
+        </button>
+        <button id="tab-btn-audit" class="tab-btn" onclick="switchTab('audit')">
+          <span class="tab-icon">📜</span> Audit Log
+        </button>
+      </nav>
+
+      <div class="nav-status">
+        <div id="live-status-pill" class="status-pill online">
+          <span class="pulse-dot"></span>
+          <span id="model-status-text">Model Active (ROC-AUC: 0.835)</span>
+        </div>
+        <a href="/docs" target="_blank" class="api-docs-link" title="Open FastAPI Swagger Documentation">API Docs ↗</a>
+      </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="main-content">
+      <!-- ================= TAB 1: LIVE SIMULATOR ================= -->
+      <section id="tab-simulator" class="tab-pane active">
+        <div class="section-header">
+          <div>
+            <h1>Real-Time Return Risk Simulator</h1>
+            <p class="section-desc">Simulate customer checkout transactions to instantly evaluate Return-to-Origin (RTO) probability and automated COD protection rules.</p>
+          </div>
+          <button id="btn-quick-sample" class="secondary-btn" onclick="populateRandomOrder()">
+            🎲 Randomize Order
+          </button>
+        </div>
+
+        <div class="simulator-grid">
+          <!-- Input Form Card -->
+          <div class="glass-card form-card">
+            <h2 class="card-title">Transaction Parameters</h2>
+
+            <form id="risk-form" onsubmit="handleSingleEvaluation(event)">
+              <!-- Transaction Amount -->
+              <div class="form-group">
+                <div class="label-row">
+                  <label for="input-amount">Cart Value (₹)</label>
+                  <span id="label-amount-val" class="field-badge">₹3,500</span>
+                </div>
+                <div class="slider-row">
+                  <input type="range" id="input-amount" min="500" max="20000" step="100" value="3500" oninput="syncAmount(this.value)" />
+                  <input type="number" id="input-amount-num" min="100" max="100000" value="3500" class="mini-number-input" oninput="syncAmount(this.value)" />
+                </div>
+              </div>
+
+              <!-- Customer History Returns -->
+              <div class="form-group">
+                <div class="label-row">
+                  <label for="input-returns">Customer Return History (Past Incidents)</label>
+                  <span id="label-returns-val" class="field-badge">2 returns</span>
+                </div>
+                <div class="slider-row">
+                  <input type="range" id="input-returns" min="0" max="8" step="1" value="2" oninput="syncReturns(this.value)" />
+                  <input type="number" id="input-returns-num" min="0" max="20" value="2" class="mini-number-input" oninput="syncReturns(this.value)" />
+                </div>
+              </div>
+
+              <!-- Category Risk -->
+              <div class="form-group">
+                <div class="label-row">
+                  <label>Product Category Vulnerability</label>
+                  <span id="label-category-val" class="field-badge">Fashion (High: 0.75)</span>
+                </div>
+                <div class="category-chips">
+                  <button type="button" class="chip-btn active" onclick="setCategoryPreset(0.75, 'Fashion Apparel', this)">👗 Fashion (0.75)</button>
+                  <button type="button" class="chip-btn" onclick="setCategoryPreset(0.55, 'Consumer Electronics', this)">📱 Electronics (0.55)</button>
+                  <button type="button" class="chip-btn" onclick="setCategoryPreset(0.40, 'Home & Kitchen', this)">🛋️ Home (0.40)</button>
+                  <button type="button" class="chip-btn" onclick="setCategoryPreset(0.15, 'Books & Media', this)">📚 Books (0.15)</button>
+                </div>
+                <input type="hidden" id="input-category-risk" value="0.75" />
+              </div>
+
+              <!-- Delivery Distance -->
+              <div class="form-group">
+                <div class="label-row">
+                  <label for="input-distance">Delivery Distance (KM)</label>
+                  <span id="label-distance-val" class="field-badge">180 km</span>
+                </div>
+                <div class="slider-row">
+                  <input type="range" id="input-distance" min="5" max="600" step="5" value="180" oninput="syncDistance(this.value)" />
+                  <input type="number" id="input-distance-num" min="1" max="3000" value="180" class="mini-number-input" oninput="syncDistance(this.value)" />
+                </div>
+              </div>
+
+              <!-- Payment Method -->
+              <div class="form-group">
+                <label>Payment Channel</label>
+                <div class="payment-toggle-group">
+                  <label class="toggle-option active" id="opt-cod">
+                    <input type="radio" name="payment_mode" value="1" checked onchange="setPaymentMode(1)" />
+                    <span class="pay-icon">💵</span>
+                    <span class="pay-text">Cash on Delivery (COD)</span>
+                  </label>
+                  <label class="toggle-option" id="opt-prepaid">
+                    <input type="radio" name="payment_mode" value="0" onchange="setPaymentMode(0)" />
+                    <span class="pay-icon">💳</span>
+                    <span class="pay-text">Prepaid / UPI / Card</span>
+                  </label>
+                </div>
+                <input type="hidden" id="input-is-cod" value="1" />
+              </div>
+
+              <!-- Custom Threshold -->
+              <div class="form-group threshold-group">
+                <div class="label-row">
+                  <label for="input-threshold">Risk Decision Cutoff Threshold</label>
+                  <span id="label-threshold-val" class="field-badge highlight">22% (Optimal Profit)</span>
+                </div>
+                <input type="range" id="input-threshold" min="0.10" max="0.90" step="0.01" value="0.22" oninput="syncThreshold(this.value)" />
+                <div class="range-labels">
+                  <span>Aggressive (10%)</span>
+                  <span class="optimal-marker">★ 22% Max Profit</span>
+                  <span>Lenient (90%)</span>
+                </div>
+              </div>
+
+              <button type="submit" id="btn-submit-eval" class="primary-btn pulse-on-hover">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                Calculate Risk & Decision
+              </button>
+            </form>
+          </div>
+
+          <!-- Decision Intelligence Card -->
+          <div class="glass-card decision-card">
+            <h2 class="card-title">AI Decision Intelligence</h2>
+
+            <div class="gauge-container">
+              <svg class="gauge-svg" viewBox="0 0 200 120">
+                <path class="gauge-bg" d="M 20 100 A 80 80 0 0 1 180 100" />
+                <path id="gauge-meter" class="gauge-meter" d="M 20 100 A 80 80 0 0 1 180 100" />
+              </svg>
+              <div class="gauge-readout">
+                <div id="risk-score-display" class="gauge-value">--%</div>
+                <div class="gauge-sub">Return Risk Probability</div>
+              </div>
+            </div>
+
+            <!-- Decision Pill & Action -->
+            <div id="decision-box" class="decision-box">
+              <div class="decision-badge-row">
+                <span id="tier-badge" class="tier-badge badge-neutral">Awaiting Input</span>
+                <span id="cod-action-badge" class="action-badge">--</span>
+              </div>
+              <h3 id="recommendation-title" class="rec-title">Submit order parameters to see AI verdict</h3>
+              <p id="recommendation-desc" class="rec-desc">Razorpay AI Risk Manager evaluates 5 critical signals to protect merchant margin while minimizing false-positive checkout abandonment.</p>
+              
+              <div id="roi-impact-banner" class="roi-banner">
+                <div class="roi-item">
+                  <span class="roi-label">RTO Savings Saved</span>
+                  <span id="roi-savings-val" class="roi-val">₹0</span>
+                </div>
+                <div class="roi-item">
+                  <span class="roi-label">False Positive Risk</span>
+                  <span id="roi-fp-val" class="roi-val">Minimal</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Explainable AI (XAI) Breakdown -->
+            <div class="xai-section">
+              <h4 class="xai-heading">
+                <span>Key Explaining Factors (XAI)</span>
+                <span class="xai-tag">Model Transparency</span>
+              </h4>
+              <div id="xai-factor-list" class="factor-list">
+                <div class="empty-factors">Factors will populate upon transaction scoring.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= TAB 2: BATCH SCANNER ================= -->
+      <section id="tab-batch" class="tab-pane">
+        <div class="section-header">
+          <div>
+            <h1>Batch Transaction Risk Scanner</h1>
+            <p class="section-desc">Evaluate hundreds of pending orders before logistics dispatch. Flag high-risk consignments and prevent reverse shipping losses.</p>
+          </div>
+          <div class="batch-actions">
+            <button id="btn-load-sample-batch" class="secondary-btn" onclick="loadSampleBatch()">
+              📥 Load 10 Demo Orders
+            </button>
+            <button id="btn-export-csv" class="primary-btn" onclick="exportResultsCSV()" disabled>
+              💾 Export Scored CSV
+            </button>
+          </div>
+        </div>
+
+        <div class="batch-upload-grid">
+          <!-- Upload Dropzone Card -->
+          <div class="glass-card upload-card">
+            <div class="dropzone" id="csv-dropzone" onclick="document.getElementById('csv-file-input').click()">
+              <input type="file" id="csv-file-input" accept=".csv" style="display:none;" onchange="handleCSVUpload(this.files[0])" />
+              <div class="drop-icon">📁</div>
+              <h3>Drop your Transactions CSV here</h3>
+              <p>Columns: <code>transaction_amount, user_history_returns, item_category_risk, delivery_distance_km, is_cod</code></p>
+              <button type="button" class="secondary-btn mini">Browse File</button>
+            </div>
+
+            <div id="batch-metrics-bar" class="batch-metrics-bar" style="display:none;">
+              <div class="b-metric">
+                <span class="bm-label">Orders Scored</span>
+                <span id="bm-total" class="bm-val">0</span>
+              </div>
+              <div class="b-metric danger">
+                <span class="bm-label">COD Blocked</span>
+                <span id="bm-blocked" class="bm-val">0</span>
+              </div>
+              <div class="b-metric safe">
+                <span class="bm-label">Estimated Savings</span>
+                <span id="bm-savings" class="bm-val">₹0</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Scored Table -->
+        <div class="glass-card table-card">
+          <div class="table-header">
+            <h3>Scored Transaction Batch</h3>
+            <div class="table-filter">
+              <button class="filter-pill active" onclick="filterBatchTable('all', this)">All</button>
+              <button class="filter-pill" onclick="filterBatchTable('blocked', this)">COD Blocked</button>
+              <button class="filter-pill" onclick="filterBatchTable('safe', this)">Safe</button>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="data-table" id="batch-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Amount</th>
+                  <th>Past Returns</th>
+                  <th>Category Risk</th>
+                  <th>Distance</th>
+                  <th>Payment</th>
+                  <th>Risk Probability</th>
+                  <th>Risk Tier</th>
+                  <th>Recommendation</th>
+                </tr>
+              </thead>
+              <tbody id="batch-table-body">
+                <tr>
+                  <td colspan="9" class="empty-state">No batch data loaded. Click "Load 10 Demo Orders" or upload a CSV.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= TAB 3: EXECUTIVE ANALYTICS ================= -->
+      <section id="tab-analytics" class="tab-pane">
+        <div class="section-header">
+          <div>
+            <h1>Executive Return Risk Analytics</h1>
+            <p class="section-desc">Key performance indicators, threshold profit optimization, and model discrimination metrics.</p>
+          </div>
+          <button class="secondary-btn" onclick="fetchAnalytics()">
+            🔄 Refresh Analytics
+          </button>
+        </div>
+
+        <!-- 4 KPI Cards -->
+        <div class="kpi-grid">
+          <div class="kpi-card glass-card">
+            <div class="kpi-title">Total Evaluated Orders</div>
+            <div id="kpi-total" class="kpi-value">--</div>
+            <div class="kpi-sub">Across all API & web sessions</div>
+          </div>
+          <div class="kpi-card glass-card danger">
+            <div class="kpi-title">COD Block Rate</div>
+            <div id="kpi-block-rate" class="kpi-value">--%</div>
+            <div class="kpi-sub" id="kpi-blocked-count">0 orders blocked</div>
+          </div>
+          <div class="kpi-card glass-card safe">
+            <div class="kpi-title">Net Logistics Saved</div>
+            <div id="kpi-savings" class="kpi-value">₹--</div>
+            <div class="kpi-sub">@ ₹800 saved per true positive RTO</div>
+          </div>
+          <div class="kpi-card glass-card accent">
+            <div class="kpi-title">Model ROC-AUC</div>
+            <div id="kpi-auc" class="kpi-value">0.835</div>
+            <div class="kpi-sub">High discrimination accuracy</div>
+          </div>
+        </div>
+
+        <div class="analytics-details-grid">
+          <!-- Risk Tier Distribution -->
+          <div class="glass-card">
+            <h3 class="card-title">Risk Tier Distribution</h3>
+            <div class="distribution-bars">
+              <div class="dist-row">
+                <span class="dist-label safe">LOW (Safe)</span>
+                <div class="dist-track"><div id="dist-bar-low" class="dist-fill safe" style="width: 0%"></div></div>
+                <span id="dist-count-low" class="dist-count">0</span>
+              </div>
+              <div class="dist-row">
+                <span class="dist-label warning">MEDIUM (Verify OTP)</span>
+                <div class="dist-track"><div id="dist-bar-med" class="dist-fill warning" style="width: 0%"></div></div>
+                <span id="dist-count-med" class="dist-count">0</span>
+              </div>
+              <div class="dist-row">
+                <span class="dist-label danger">HIGH (Advance Deposit)</span>
+                <div class="dist-track"><div id="dist-bar-high" class="dist-fill danger" style="width: 0%"></div></div>
+                <span id="dist-count-high" class="dist-count">0</span>
+              </div>
+              <div class="dist-row">
+                <span class="dist-label critical">CRITICAL (Block COD)</span>
+                <div class="dist-track"><div id="dist-bar-crit" class="dist-fill critical" style="width: 0%"></div></div>
+                <span id="dist-count-crit" class="dist-count">0</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Feature Importance Breakdown -->
+          <div class="glass-card">
+            <h3 class="card-title">Model Feature Importance (Global)</h3>
+            <div class="feature-importance-list">
+              <div class="fi-row">
+                <span class="fi-name">item_category_risk</span>
+                <div class="fi-track"><div class="fi-bar" style="width: 38%"></div></div>
+                <span class="fi-val">38%</span>
+              </div>
+              <div class="fi-row">
+                <span class="fi-name">user_history_returns</span>
+                <div class="fi-track"><div class="fi-bar" style="width: 32%"></div></div>
+                <span class="fi-val">32%</span>
+              </div>
+              <div class="fi-row">
+                <span class="fi-name">is_cod</span>
+                <div class="fi-track"><div class="fi-bar" style="width: 18%"></div></div>
+                <span class="fi-val">18%</span>
+              </div>
+              <div class="fi-row">
+                <span class="fi-name">transaction_amount</span>
+                <div class="fi-track"><div class="fi-bar" style="width: 7%"></div></div>
+                <span class="fi-val">7%</span>
+              </div>
+              <div class="fi-row">
+                <span class="fi-name">delivery_distance_km</span>
+                <div class="fi-track"><div class="fi-bar" style="width: 5%"></div></div>
+                <span class="fi-val">5%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Profit Optimization Formula Card -->
+        <div class="glass-card rubric-card">
+          <h3 class="card-title">Razorpay Rubric: Profit Optimization Formula</h3>
+          <div class="rubric-grid">
+            <div class="rubric-box">
+              <span class="r-icon">🛡️</span>
+              <h4>True Positive Reward (+₹800)</h4>
+              <p>Intercepting a fraudulent COD return saves reverse courier freight, warehouse restocking fees, and transit damages.</p>
+            </div>
+            <div class="rubric-box">
+              <span class="r-icon">⚠️</span>
+              <h4>False Positive Penalty (-₹200)</h4>
+              <p>Falsely disabling COD on an honest buyer causes friction and lost customer lifetime gross margin.</p>
+            </div>
+            <div class="rubric-box highlight">
+              <span class="r-icon">🎯</span>
+              <h4>Optimal Threshold: 0.22</h4>
+              <p>At 22% cutoff, test set yields max net business savings of ₹1,49,000, catching 87% of actual returns.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= TAB 4: AUDIT LOG ================= -->
+      <section id="tab-audit" class="tab-pane">
+        <div class="section-header">
+          <div>
+            <h1>Transaction Audit & Compliance Log</h1>
+            <p class="section-desc">Auditable record of every transaction evaluated by the risk engine, stored securely in SQLite.</p>
+          </div>
+          <button class="secondary-btn" onclick="fetchAuditLog()">
+            🔄 Reload Log
+          </button>
+        </div>
+
+        <div class="glass-card table-card">
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Timestamp (UTC)</th>
+                  <th>Amount</th>
+                  <th>History</th>
+                  <th>Category</th>
+                  <th>Distance</th>
+                  <th>Payment</th>
+                  <th>Score</th>
+                  <th>Tier</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="audit-table-body">
+                <tr><td colspan="10" class="empty-state">Loading audit trail...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="footer-left">
+        Razorpay AI Risk Manager &bull; Track 02 Fintech Intelligence &bull; Production Microservice
+      </div>
+      <div class="footer-right">
+        <span>FastAPI</span> &bull; <span>Scikit-Learn</span> &bull; <span>SQLite Audit</span> &bull; <span>XAI Engine</span>
+      </div>
+    </footer>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
